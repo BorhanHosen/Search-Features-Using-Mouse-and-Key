@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const App = () => {
   const [users, setUsers] = useState([]);
@@ -6,6 +6,7 @@ const App = () => {
   const [userName, setUserName] = useState("");
   const [isOpenSearch, setIsOpenSearch] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1); // Track selected user index
+  const dropdownRef = useRef(null); // Ref for the dropdown
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -47,51 +48,77 @@ const App = () => {
         setIsOpenSearch(false); // Close the search dropdown
       }
     } else if (e.key === "ArrowDown") {
-      setSelectedIndex((prevIndex) =>
-        prevIndex < filteredUsers.length - 1 ? prevIndex + 1 : prevIndex
-      );
+      setSelectedIndex((prevIndex) => {
+        const newIndex = Math.min(prevIndex + 1, filteredUsers.length - 1);
+        scrollToSelected(newIndex);
+        return newIndex;
+      });
     } else if (e.key === "ArrowUp") {
-      setSelectedIndex((prevIndex) =>
-        prevIndex > 0 ? prevIndex - 1 : prevIndex
-      );
+      setSelectedIndex((prevIndex) => {
+        const newIndex = Math.max(prevIndex - 1, 0);
+        scrollToSelected(newIndex);
+        return newIndex;
+      });
+    }
+  };
+
+  const scrollToSelected = (index) => {
+    if (dropdownRef.current) {
+      const selectedElement = dropdownRef.current.children[index];
+      if (selectedElement) {
+        selectedElement.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      }
     }
   };
 
   return (
-    <div className="h-screen w-screen flex items-center justify-center bg-gray-900">
-      <div className="flex flex-col w-1/3 bg-gray-800 rounded-lg shadow-lg p-6">
-        <h1 className="text-xl font-semibold text-white mb-4">
-          Selected Name: {userName}
-        </h1>
-        <form>
-          <input
-            className="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            type="text"
-            placeholder="Search User..."
-            value={userName}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-          />
-          {isOpenSearch && (
-            <div className="bg-gray-700 w-full mt-2 max-h-32 overflow-auto rounded-md shadow-lg">
-              {filteredUsers.map((user, index) => (
-                <div
-                  key={user.id}
-                  className={`p-2 cursor-pointer hover:bg-gray-600 transition-colors duration-200 ${
-                    selectedIndex === index ? "bg-gray-500" : ""
-                  }`} // Highlight selected user
-                  onMouseEnter={() => setSelectedIndex(index)} // Optional: highlight on hover
-                  onClick={() => {
-                    setUserName(user.name);
-                    setIsOpenSearch(false);
-                  }}
-                >
-                  <h1 className="text-white">{user.name}</h1>
-                </div>
-              ))}
-            </div>
-          )}
-        </form>
+    <div className="h-screen w-screen justify-center bg-gray-900">
+      <div className="flex justify-center items-center flex-col pt-20">
+        <div className="flex justify-center">
+          <h1 className="text-4xl font-semibold text-white mb-4">
+            Search-Features-Using-Mouse-and-Key
+          </h1>
+        </div>
+        <div className="flex flex-col w-1/3 bg-gray-800 rounded-lg shadow-lg p-6">
+          <h1 className="text-xl font-semibold text-white mb-4">
+            Selected Name: {userName}
+          </h1>
+          <form>
+            <input
+              className="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              type="text"
+              placeholder="Search User..."
+              value={userName}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
+            />
+            {isOpenSearch && (
+              <div
+                ref={dropdownRef}
+                className="bg-gray-700 w-full mt-2 max-h-32 overflow-auto rounded-md shadow-lg"
+              >
+                {filteredUsers.map((user, index) => (
+                  <div
+                    key={user.id}
+                    className={`p-2 cursor-pointer hover:bg-gray-600 transition-colors duration-200 ${
+                      selectedIndex === index ? "bg-gray-500" : ""
+                    }`} // Highlight selected user
+                    onMouseEnter={() => setSelectedIndex(index)} // Optional: highlight on hover
+                    onClick={() => {
+                      setUserName(user.name);
+                      setIsOpenSearch(false);
+                    }}
+                  >
+                    <h1 className="text-white">{user.name}</h1>
+                  </div>
+                ))}
+              </div>
+            )}
+          </form>
+        </div>
       </div>
     </div>
   );
