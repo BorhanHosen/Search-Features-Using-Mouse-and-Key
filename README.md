@@ -17,5 +17,5 @@ A simple React application that allows users to search for names from a list fet
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/user-search-app.git
+   git clone https://github.com/BorhanHosen/Search-Features-Using-Mouse-and-Key.git
    ```
