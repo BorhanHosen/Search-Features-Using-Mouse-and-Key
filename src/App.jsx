@@ -47,6 +47,8 @@ const App = () => {
         setUserName(filteredUsers[selectedIndex].name);
         setIsOpenSearch(false); // Close the search dropdown
       }
+    } else if (e.key === "Escape") {
+      setIsOpenSearch(false); // Close the search dropdown
     } else if (e.key === "ArrowDown") {
       setSelectedIndex((prevIndex) => {
         const newIndex = Math.min(prevIndex + 1, filteredUsers.length - 1);
@@ -73,6 +75,22 @@ const App = () => {
       }
     }
   };
+
+  useEffect(() => {
+    // Function to handle the click event
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpenSearch(false); // Close the search dropdown
+      }
+    };
+    // Attach the event listener to the document
+    document.addEventListener("click", handleClickOutside);
+
+    // Cleanup the event listener when the component is unmounted
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="h-screen w-screen justify-center bg-gray-900">
